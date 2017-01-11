@@ -881,7 +881,7 @@ class Cli(object):
         subst = conf.substitutions
         subst.update_from_etc(conf.installroot)
 
-        for opt in ('cachedir', 'logdir', 'persistdir'):
+        for opt in ('cachedir', 'persistdir'):
             conf.prepend_installroot(opt)
 
         self.base._logging._setup_from_dnf_conf(conf)
