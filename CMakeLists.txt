@@ -7,8 +7,8 @@ if (NOT PYTHON_DESIRED)
     set (PYTHON_DESIRED "2")
 endif()
 
-SET( SYSCONFDIR /etc)
-SET( SYSTEMD_DIR /usr/lib/systemd/system)
+SET( SYSCONFDIR ${CMAKE_INSTALL_SYSCONFDIR})
+SET( SYSTEMD_DIR $ENV{systemd_system_unitdir})
 
 if (${PYTHON_DESIRED} STREQUAL "2")
 	FIND_PACKAGE (PythonInterp REQUIRED)
