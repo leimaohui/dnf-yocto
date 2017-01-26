@@ -1,1 +1,1 @@
-INSTALL (FILES dnf.conf DESTINATION /usr/lib/tmpfiles.d/)
+INSTALL (FILES dnf.conf DESTINATION ${SYSCONFDIR}/tmpfiles.d/)
