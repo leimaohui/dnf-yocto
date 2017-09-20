@@ -1,0 +1,127 @@
+#!/bin/sh
+
+#DEFAULT_TARGET_ ROOTFS=""
+DEFAULT_REPO_DIR=`pwd`/oe_repo
+
+if [ $1 = "init" -a $# = 1 ]; then
+    #get repo directory
+    echo "The repo directory: (default:`pwd`/oe_repo)."
+    echo "Is this ok?[y/N]:"
+    read DEFINE_REPO_DIR_ANSWER
+    if [ $DEFINE_REPO_DIR_ANSWER = "N" ]; then
+        echo "Please input repo directory =>"
+        read DEFINE_REPO_DIR
+    else
+        DEFINE_REPO_DIR=$DEFAULT_REPO_DIR
+        echo "repo directory: $DEFINE_REPO_DIR"
+    fi
+
+    #get rootfs destination directory
+    echo "The rootfs destination directory: (default: )."
+    echo "Is this ok?[y/N]:"
+    read DEFINE_ROOTFS_DIR_ANSWER
+    if [ $DEFINE_ROOTFS_DIR_ANSWER = "N" ]; then
+        echo "Please input rootfs destination directory =>"
+        read DEFINE_ROOTFS_DIR
+    else
+        DEFINE_ROOTFS_DIR=$DEFAULT_ROOTFS_DIR
+        echo "rootfs destination directory: $DEFINE_ROOTFS_DIR"
+    fi
+
+    #get SPDX repo directory
+    echo "The SPDX repo directory: (default: )."
+    echo "Is this ok?[y/N]:"
+    read DEFINE_SPDX_REPO_DIR_ANSWER
+    if [ $DEFINE_SPDX_REPO_DIR_ANSWER = "N" ]; then
+        echo "Please input SPDX repo directory =>"
+        read DEFINE_SPDX_REPO_DIR
+    else
+        DEFINE_SPDX_REPO_DIR=$DEFAULT_SPDX_REPO_DIR
+        echo "SPDX repo directory: $DEFINE_SPDX_REPO_DIR"
+    fi
+
+    #get SPDX file destination directory
+    echo "The SPDX file destination directory: (default: )."
+    echo "Is this ok?[y/N]:"
+    read DEFINE_SPDX_DESTINATION_DIR_ANSWER
+    if [ $DEFINE_SPDX_DESTINATION_DIR_ANSWER = "N" ]; then
+        echo "Please input SPDX file destination directory =>"
+        read DEFINE_SPDX_DESTINATION_DIR
+    else
+        DEFINE_SPDX_DESTINATION_DIR=$DEFAULT_SPDX_DESTINATION_DIR
+        echo "SPDX file destination directory: $DEFINE_SPDX_DESTINATION_DIR"
+    fi
+
+    #get SRPM repo directory    
+    echo "The SRPM repo directory: (default: )."
+    echo "Is this ok?[y/N]:"
+    read DEFINE_SRPM_REPO_DIR_ANSWER
+    if [ $DEFINE_SRPM_REPO_DIR_ANSWER = "N" ]; then
+        echo "Please input SRPM repo directory =>"
+        read DEFINE_SRPM_REPO_DIR
+    else
+        DEFINE_SRPM_REPO_DIR=$DEFAULT_SRPM_REPO_DIR
+        echo "SRPM repo directory: $DEFINE_SRPM_REPO_DIR"
+    fi
+
+
+    #get SRPM file destination directory
+    echo "The SRPM file destination directory: (default: )."
+    echo "Is this ok?[y/N]:"
+    read DEFINE_SRPM_DESTINATION_DIR_ANSWER
+    if [ $DEFINE_SRPM_DESTINATION_DIR_ANSWER = "N" ]; then
+        echo "Please input SRPM destination directory =>"
+        read DEFINE_SRPM_DESTINATION_DIR
+    else
+        DEFINE_SRPM_DESTINATION_DIR=$DEFAULT_SRPM_DESTINATION_DIR
+        echo "SRPM file destination directory: $DEFINE_SRPM_DESTINATION_DIR"
+    fi
+    
+
+    environment-dnf.sh $DEFINE_ROOTFS_DIR $DEFINE_REPO_DIR $DEFINE_SPDX_REPO_DIR $DEFINE_SPDX_DESTINATION_DIR $DEFINE_SRPM_REPO_DIR $DEFINE_SRPM_DESTINATION_DIR
+     
+#elif [ $1 = "init" -a $# != 3 ]; then
+#   echo "Error! The usage of dnf-host init is :"
+#   echo "dnf-host init \${rootfs-dir} \${repo-dir} "
+elif [ $1 = "help" -o $1 = "--help" -o $1 = "-h" -o $1 = "-H" ]; then
+    if [ ! -f `pwd`/.env-dnf ]; then
+        echo "Init the environment failed, please init again"
+        exit 0
+    else
+        source `pwd`/.env-dnf
+        echo "usage: "
+        echo ""
+        echo "dnf-host is only used on host to manage packages for target."
+        echo ""
+        echo "1. If you want to create a new rootfs."
+        echo "   \$ source dnf-host init \${rootfs-dir} \${repo-dir}"
+        echo ""
+        echo "2. If you want to manage your rootfs that has already create by dnf-host."
+        echo "   \$ dnf-host [options] COMMAND "
+        echo "   In this case, the usage is as same as dnf:"
+        echo ""
+        dnf -y -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --installroot=${TARGET_ROOTFS} --setopt=logdir='pwd'/ help
+    fi
+elif [ $1 = "show" ]; then
+    if [ ! -f `pwd`/.env-dnf ]; then
+        echo "Init the environment failed, please init again"
+        exit 0
+    else
+        source `pwd`/.env-dnf
+        echo "repo directory : ${REPO_DIR}"
+        echo "rootfs destination directory : ${TARGET_ROOTFS}"
+        echo "SPDX repo directory : ${SPDX_REPO_DIR}"
+        echo "SPDX destination directory : ${SPDX_DESTINATION_DIR}"
+        echo "SRPM repo directory : ${SRPM_REPO_DIR}"
+        echo "SRPM destination directory : ${SRPM_DESTINATION_DIR}"
+    fi
+else 
+    if [ ! -f `pwd`/.env-dnf ]; then
+        echo "Init the environment failed, please init again"
+        exit 0
+    else
+        source `pwd`/.env-dnf
+        dnf -y -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --repofrompath=oe-repo,${REPO_DIR} --installroot=${TARGET_ROOTFS} --setopt=logdir='pwd'/ --nogpgcheck $*
+    fi
+fi
+
