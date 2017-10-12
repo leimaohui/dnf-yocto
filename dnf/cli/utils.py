@@ -24,6 +24,7 @@ import dnf.util
 import logging
 import os
 import time
+import re, shutil, urllib.request
 
 _USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
 logger = logging.getLogger('dnf')
@@ -127,3 +128,91 @@ def show_lock_owner(pid):
     logger.critical(_('    State  : %s'), ps['state'])
 
     return
+
+def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
+    """Add for spdx/srpm file cp operation.
+
+    :param option: the file type to be fetch sdpx/srpm.
+    :param install_pkgs: The pkgs objexts which will be installed.
+    :param srcdir_path:  the repo path of source pkg.
+    :param destdir_path:  the destination path of where you want to put your spdx/srpm files. 
+    :return: No
+    """
+
+    def copy_package(option, pkgname):
+        src_path = srcdir_path + '/' + pkgname
+        dest_path = destdir_path + '/' + pkgname
+        if os.path.exists(src_path):
+            shutil.copyfile(src_path, dest_path)
+            logger.info(_("%s copy is OK."), pkgname)
+        else:
+            logger.info(_("%s file: %s does not exist....."), option, pkgname)
+
+    def download_package(option, pkgname):
+        url = srcdir_path + '/' + pkgname
+        file_name = destdir_path + '/' + pkgname
+        
+        try:  
+            u = urllib.request.urlopen(url)  
+        except urllib.error.HTTPError as e:
+            #logger.info(_("Error code: %s"), e.code)
+            if e.code == 404:
+                logger.info(_("%s file: %s does not exist....."), option, pkgname)
+            return
+        
+        f = open(file_name, 'wb')  
+        #file_size = int(meta.getheaders("Content-Length")[0])  
+        file_size = int(u.info().get('Content-Length'))  
+          
+        file_size_dl = 0  
+        block_sz = 8192  
+        try:
+            while True:  
+              buffer = u.read(block_sz)  
+              if not buffer:  
+                break  
+              
+              file_size_dl += len(buffer)  
+              f.write(buffer)  
+            f.close()  
+            logger.info(_("%s download is OK."), pkgname)
+        except OSError:
+            pass
+
+    def fetch_package(option, type, pkgname):
+        if type == 'local':
+            copy_package(option, pkgname)
+        elif type == 'remote':
+            download_package(option, pkgname)
+    
+    def local_path_check(path):
+        if not os.path.exists(path):
+            logger.info(_("local_repodir %s is not exists, please check it."), path)
+
+    srcdir_path = "".join(tuple(srcdir_path))  #transfer a list to string
+    '''local fetch'''
+    if srcdir_path.startswith('file://') or srcdir_path.startswith('/'):
+        type = 'local'
+        if srcdir_path.startswith('file://'):
+            srcdir_path = dnf.util.strip_prefix(srcdir_path, 'file://')
+        local_path_check(srcdir_path)
+    elif srcdir_path.startswith('http://'):  ##remote fetch
+        type = 'remote'
+    else:
+        logger.info(_("The format of %s_repodir is not right, please check it!\
+        We only support file:// and http://"), option)   
+   
+    '''when the destdir_path is not exist, make it'''
+    if not os.path.exists(destdir_path):
+        os.mkdir(destdir_path)
+
+    for pkg in sorted(install_pkgs):
+        sourcerpm = pkg.sourcerpm
+        if option == 'spdx':
+            match = ''.join(re.findall("-r\d{1,}.src.rpm",sourcerpm))
+            '''filter the .src.rpm and r*'''
+            spdxname = sourcerpm.replace(match, '') + ".spdx"   
+            fetch_package(option, type, spdxname)
+        elif option == 'srpm':
+            fetch_package(option, type, sourcerpm)
+

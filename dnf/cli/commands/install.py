@@ -24,6 +24,7 @@ from dnf.cli import commands
 from dnf.cli.option_parser import OptionParser
 from dnf.i18n import _
 from itertools import chain
+import dnf.subject
 
 import dnf.exceptions
 import hawkey
@@ -48,6 +49,12 @@ class InstallCommand(commands.Command):
         parser.add_argument('package', nargs='+', metavar=_('PACKAGE'),
                           action=OptionParser.ParseSpecGroupFileCallback,
                           help=_('Package to install'))
+        parser.add_argument("--with-spdx", dest="with_spdx",
+                                 action="store_true", default=None,
+                                 help=_("download_spdx_file"))
+        parser.add_argument("--with-srpm", dest="with_srpm",
+                                 action="store_true", default=None,
+                                 help=_("download_srpm_file"))
 
     def configure(self):
         """Verify that conditions are met so that this command can run.
@@ -66,6 +73,17 @@ class InstallCommand(commands.Command):
 
     def run(self):
         strict = self.base.conf.strict
+
+        if self.opts.with_spdx:
+            self.base.conf.with_spdx = True
+        else:
+            self.base.conf.with_spdx = False
+
+        #import pdb;pdb.set_trace()
+        if self.opts.with_srpm:
+            self.base.conf.with_srpm = True
+        else:
+            self.base.conf.with_srpm = False
 
         # localinstall valid arguments check
         nonfilenames = self.opts.grp_specs or self.opts.pkg_specs

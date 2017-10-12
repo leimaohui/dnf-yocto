@@ -2,6 +2,11 @@
 
 #DEFAULT_TARGET_ ROOTFS=""
 DEFAULT_REPO_DIR=`pwd`/oe_repo
+DEFAULT_ROOTFS_DIR=`pwd`/rootfs
+DEFAULT_SPDX_REPO_DIR=file://`pwd`/oe_repo/spdx_repo
+DEFAULT_SPDX_DESTINATION_DIR=`pwd`/spdx_download
+DEFAULT_SRPM_REPO_DIR=file://`pwd`/oe_repo/srpm_repo
+DEFAULT_SRPM_DESTINATION_DIR=`pwd`/srpm_download
 
 if [ $1 = "init" -a $# = 1 ]; then
     #get repo directory
@@ -17,7 +22,7 @@ if [ $1 = "init" -a $# = 1 ]; then
     fi
 
     #get rootfs destination directory
-    echo "The rootfs destination directory: (default: )."
+    echo "The rootfs destination directory: (default: $DEFAULT_ROOTFS_DIR)."
     echo "Is this ok?[y/N]:"
     read DEFINE_ROOTFS_DIR_ANSWER
     if [ $DEFINE_ROOTFS_DIR_ANSWER = "N" ]; then
@@ -29,7 +34,7 @@ if [ $1 = "init" -a $# = 1 ]; then
     fi
 
     #get SPDX repo directory
-    echo "The SPDX repo directory: (default: )."
+    echo "The SPDX repo directory: (default: $DEFAULT_SPDX_REPO_DIR)."
     echo "Is this ok?[y/N]:"
     read DEFINE_SPDX_REPO_DIR_ANSWER
     if [ $DEFINE_SPDX_REPO_DIR_ANSWER = "N" ]; then
@@ -41,7 +46,7 @@ if [ $1 = "init" -a $# = 1 ]; then
     fi
 
     #get SPDX file destination directory
-    echo "The SPDX file destination directory: (default: )."
+    echo "The SPDX file destination directory: (default: $DEFAULT_SPDX_DESTINATION_DIR)."
     echo "Is this ok?[y/N]:"
     read DEFINE_SPDX_DESTINATION_DIR_ANSWER
     if [ $DEFINE_SPDX_DESTINATION_DIR_ANSWER = "N" ]; then
@@ -51,9 +56,13 @@ if [ $1 = "init" -a $# = 1 ]; then
         DEFINE_SPDX_DESTINATION_DIR=$DEFAULT_SPDX_DESTINATION_DIR
         echo "SPDX file destination directory: $DEFINE_SPDX_DESTINATION_DIR"
     fi
+    if [ ! -d $DEFINE_SPDX_DESTINATION_DIR ];then
+        echo "Create the SPDX file destination directory automatically"
+        mkdir -p $DEFINE_SPDX_DESTINATION_DIR
+    fi
 
     #get SRPM repo directory    
-    echo "The SRPM repo directory: (default: )."
+    echo "The SRPM repo directory: (default: $DEFAULT_SRPM_REPO_DIR)."
     echo "Is this ok?[y/N]:"
     read DEFINE_SRPM_REPO_DIR_ANSWER
     if [ $DEFINE_SRPM_REPO_DIR_ANSWER = "N" ]; then
@@ -66,7 +75,7 @@ if [ $1 = "init" -a $# = 1 ]; then
 
 
     #get SRPM file destination directory
-    echo "The SRPM file destination directory: (default: )."
+    echo "The SRPM file destination directory: (default: $DEFAULT_SRPM_DESTINATION_DIR)."
     echo "Is this ok?[y/N]:"
     read DEFINE_SRPM_DESTINATION_DIR_ANSWER
     if [ $DEFINE_SRPM_DESTINATION_DIR_ANSWER = "N" ]; then
@@ -76,7 +85,10 @@ if [ $1 = "init" -a $# = 1 ]; then
         DEFINE_SRPM_DESTINATION_DIR=$DEFAULT_SRPM_DESTINATION_DIR
         echo "SRPM file destination directory: $DEFINE_SRPM_DESTINATION_DIR"
     fi
-    
+    if [ ! -d $DEFINE_SRPM_DESTINATION_DIR ];then
+        echo "Create the SRPM file destination directory automatically"
+        mkdir -p $DEFINE_SRPM_DESTINATION_DIR
+    fi
 
     environment-dnf.sh $DEFINE_ROOTFS_DIR $DEFINE_REPO_DIR $DEFINE_SPDX_REPO_DIR $DEFINE_SPDX_DESTINATION_DIR $DEFINE_SRPM_REPO_DIR $DEFINE_SRPM_DESTINATION_DIR
      
@@ -100,7 +112,7 @@ elif [ $1 = "help" -o $1 = "--help" -o $1 = "-h" -o $1 = "-H" ]; then
         echo "   \$ dnf-host [options] COMMAND "
         echo "   In this case, the usage is as same as dnf:"
         echo ""
-        dnf -y -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --installroot=${TARGET_ROOTFS} --setopt=logdir='pwd'/ help
+        dnf -y -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --installroot=${TARGET_ROOTFS} --setopt=logdir=`pwd`/ help
     fi
 elif [ $1 = "show" ]; then
     if [ ! -f `pwd`/.env-dnf ]; then
@@ -121,7 +133,7 @@ else
         exit 0
     else
         source `pwd`/.env-dnf
-        dnf -y -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --repofrompath=oe-repo,${REPO_DIR} --installroot=${TARGET_ROOTFS} --setopt=logdir='pwd'/ --nogpgcheck $*
+        dnf -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --repofrompath=oe-repo,${REPO_DIR} --installroot=${TARGET_ROOTFS} --setopt=logdir=`pwd`/ --nogpgcheck $*
     fi
 fi
 
