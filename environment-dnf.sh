@@ -63,7 +63,7 @@ if [ ! -d $REPO_DIR/rpm ]; then
 fi
 
 #create repodata for rpm packages.
-createrepo_c --update -q $REPO_DIR
+createrepo_c.real --update -q $REPO_DIR
 
 # Pseudo Environment
 #export LD_LIBRARY_PATH=$OECORE_NATIVE_SYSROOT/usr/bin/../lib/pseudo/lib:$OECORE_NATIVE_SYSROOT/usr/bin/../lib/pseudo/lib64

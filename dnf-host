@@ -1,16 +1,17 @@
 #!/bin/sh
 
 #DEFAULT_TARGET_ ROOTFS=""
-DEFAULT_REPO_DIR=`pwd`/oe_repo
-DEFAULT_ROOTFS_DIR=`pwd`/rootfs
-DEFAULT_SPDX_REPO_DIR=file://`pwd`/oe_repo/spdx_repo
-DEFAULT_SPDX_DESTINATION_DIR=`pwd`/spdx_download
-DEFAULT_SRPM_REPO_DIR=file://`pwd`/oe_repo/srpm_repo
-DEFAULT_SRPM_DESTINATION_DIR=`pwd`/srpm_download
+WORKDIR=`pwd`
+DEFAULT_REPO_DIR=$WORKDIR/oe_repo
+DEFAULT_ROOTFS_DIR=$WORKDIR/rootfs
+DEFAULT_SPDX_REPO_DIR=file://$WORKDIR/oe_repo/spdx_repo
+DEFAULT_SPDX_DESTINATION_DIR=$WORKDIR/spdx_download
+DEFAULT_SRPM_REPO_DIR=file://$WORKDIR/oe_repo/srpm_repo
+DEFAULT_SRPM_DESTINATION_DIR=$WORKDIR/srpm_download
 
 if [ $1 = "init" -a $# = 1 ]; then
     #get repo directory
-    echo "The repo directory: (default:`pwd`/oe_repo)."
+    echo "The repo directory: (default:$WORKDIR/oe_repo)."
     echo "Is this ok?[y/N]:"
     read DEFINE_REPO_DIR_ANSWER
     if [ $DEFINE_REPO_DIR_ANSWER = "N" ]; then
@@ -96,11 +97,11 @@ if [ $1 = "init" -a $# = 1 ]; then
 #   echo "Error! The usage of dnf-host init is :"
 #   echo "dnf-host init \${rootfs-dir} \${repo-dir} "
 elif [ $1 = "help" -o $1 = "--help" -o $1 = "-h" -o $1 = "-H" ]; then
-    if [ ! -f `pwd`/.env-dnf ]; then
+    if [ ! -f $WORKDIR/.env-dnf ]; then
         echo "Init the environment failed, please init again"
         exit 0
     else
-        source `pwd`/.env-dnf
+        source $WORKDIR/.env-dnf
         echo "usage: "
         echo ""
         echo "dnf-host is only used on host to manage packages for target."
@@ -112,14 +113,14 @@ elif [ $1 = "help" -o $1 = "--help" -o $1 = "-h" -o $1 = "-H" ]; then
         echo "   \$ dnf-host [options] COMMAND "
         echo "   In this case, the usage is as same as dnf:"
         echo ""
-        dnf -y -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --installroot=${TARGET_ROOTFS} --setopt=logdir=`pwd`/ help
+        dnf -y -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --installroot=${TARGET_ROOTFS} --setopt=logdir=$WORKDIR/ help
     fi
 elif [ $1 = "show" ]; then
-    if [ ! -f `pwd`/.env-dnf ]; then
+    if [ ! -f $WORKDIR/.env-dnf ]; then
         echo "Init the environment failed, please init again"
         exit 0
     else
-        source `pwd`/.env-dnf
+        source $WORKDIR/.env-dnf
         echo "repo directory : ${REPO_DIR}"
         echo "rootfs destination directory : ${TARGET_ROOTFS}"
         echo "SPDX repo directory : ${SPDX_REPO_DIR}"
@@ -128,12 +129,12 @@ elif [ $1 = "show" ]; then
         echo "SRPM destination directory : ${SRPM_DESTINATION_DIR}"
     fi
 else 
-    if [ ! -f `pwd`/.env-dnf ]; then
+    if [ ! -f $WORKDIR/.env-dnf ]; then
         echo "Init the environment failed, please init again"
         exit 0
     else
-        source `pwd`/.env-dnf
-        dnf -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --repofrompath=oe-repo,${REPO_DIR} --installroot=${TARGET_ROOTFS} --setopt=logdir=`pwd`/ --nogpgcheck $*
+        source $WORKDIR/.env-dnf
+        dnf -c ${TARGET_ROOTFS}/etc/dnf/dnf.conf --setopt=reposdir=${TARGET_ROOTFS}/etc/yum.repos.d --repofrompath=oe-repo,${REPO_DIR} --installroot=${TARGET_ROOTFS} --setopt=logdir=$WORKDIR/ --nogpgcheck $*
     fi
 fi
 
