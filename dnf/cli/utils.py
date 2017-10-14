@@ -143,10 +143,15 @@ def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
         src_path = srcdir_path + '/' + pkgname
         dest_path = destdir_path + '/' + pkgname
         if os.path.exists(src_path):
-            shutil.copyfile(src_path, dest_path)
-            logger.info(_("%s copy is OK."), pkgname)
+            try:
+                shutil.copyfile(src_path, dest_path)
+                logger.info(_("%s copy is OK."), pkgname)
+            except Exception as e:
+                logger.error(_("%s."), e)
+                return
         else:
-            logger.info(_("%s file: %s does not exist....."), option, pkgname)
+            logger.warning(_("%s file: %s does not exist....."), option, pkgname)
+            return
 
     def download_package(option, pkgname):
         url = srcdir_path + '/' + pkgname
@@ -155,29 +160,30 @@ def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
         try:  
             u = urllib.request.urlopen(url)  
         except urllib.error.HTTPError as e:
-            #logger.info(_("Error code: %s"), e.code)
+            logger.error(_("Error code: %s"), e)
             if e.code == 404:
-                logger.info(_("%s file: %s does not exist....."), option, pkgname)
+                logger.error(_("%s file: %s does not exist....."), option, pkgname)
             return
         
-        f = open(file_name, 'wb')  
-        #file_size = int(meta.getheaders("Content-Length")[0])  
-        file_size = int(u.info().get('Content-Length'))  
-          
-        file_size_dl = 0  
-        block_sz = 8192  
         try:
-            while True:  
-              buffer = u.read(block_sz)  
-              if not buffer:  
-                break  
+            f = open(file_name, 'wb')  
+            #file_size = int(meta.getheaders("Content-Length")[0])  
+            file_size = int(u.info().get('Content-Length'))  
               
-              file_size_dl += len(buffer)  
-              f.write(buffer)  
+            import pdb;pdb.set_trace()
+            file_size_dl = 0  
+            block_sz = 8192  
+            while True:  
+                buffer = u.read(block_sz)  
+                if not buffer:  
+                    break  
+                file_size_dl += len(buffer)  
+                f.write(buffer)  
             f.close()  
             logger.info(_("%s download is OK."), pkgname)
-        except OSError:
-            pass
+        except OSError as e:
+            logger.error(_("%s."), e)
+            return
 
     def fetch_package(option, type, pkgname):
         if type == 'local':
@@ -187,7 +193,10 @@ def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
     
     def local_path_check(path):
         if not os.path.exists(path):
-            logger.info(_("local_repodir %s is not exists, please check it."), path)
+            logger.error(_("local_repodir %s is not exists, please check it."), path)
+            return
+        else:
+            return True
 
     srcdir_path = "".join(tuple(srcdir_path))  #transfer a list to string
     '''local fetch'''
@@ -195,16 +204,21 @@ def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
         type = 'local'
         if srcdir_path.startswith('file://'):
             srcdir_path = dnf.util.strip_prefix(srcdir_path, 'file://')
-        local_path_check(srcdir_path)
+        if not local_path_check(srcdir_path):
+            return
     elif srcdir_path.startswith('http://'):  ##remote fetch
         type = 'remote'
     else:
-        logger.info(_("The format of %s_repodir is not right, please check it!\
-        We only support file:// and http://"), option)   
+        logger.error(_("The format of %s_repodir is not right, please check it!\nWe only support file:// and http://"), option)   
+        return
    
     '''when the destdir_path is not exist, make it'''
     if not os.path.exists(destdir_path):
-        os.mkdir(destdir_path)
+        try:
+            os.mkdir(destdir_path)
+        except Exception as e:
+            logger.error(_("Create dir failed, %s."), e)
+            return
 
     for pkg in sorted(install_pkgs):
         sourcerpm = pkg.sourcerpm
