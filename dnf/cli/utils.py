@@ -24,7 +24,7 @@ import dnf.util
 import logging
 import os
 import time
-import re, shutil, urllib.request
+import re, shutil, urllib.request, librepo
 
 _USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
 logger = logging.getLogger('dnf')
@@ -153,43 +153,55 @@ def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
             logger.warning(_("%s file: %s does not exist....."), option, pkgname)
             return
 
-    def download_package(option, pkgname):
+    def http_download_file(option, pkgname):
         url = srcdir_path + '/' + pkgname
         file_name = destdir_path + '/' + pkgname
         
-        try:  
-            u = urllib.request.urlopen(url)  
-        except urllib.error.HTTPError as e:
-            logger.error(_("Error code: %s"), e)
-            if e.code == 404:
-                logger.error(_("%s file: %s does not exist....."), option, pkgname)
-            return
+        #try:  
+        #    u = urllib.request.urlopen(url)  
+        #except urllib.error.HTTPError as e:
+        #    logger.error(_("Error code: %s"), e)
+        #    if e.code == 404:
+        #        logger.error(_("%s file: %s does not exist....."), option, pkgname)
+        #    return
         
         try:
-            f = open(file_name, 'wb')  
-            #file_size = int(meta.getheaders("Content-Length")[0])  
-            file_size = int(u.info().get('Content-Length'))  
-              
-            import pdb;pdb.set_trace()
-            file_size_dl = 0  
-            block_sz = 8192  
-            while True:  
-                buffer = u.read(block_sz)  
-                if not buffer:  
-                    break  
-                file_size_dl += len(buffer)  
-                f.write(buffer)  
-            f.close()  
-            logger.info(_("%s download is OK."), pkgname)
-        except OSError as e:
+            """Example of the simplest usage"""
+            fd = os.open(file_name, os.O_RDWR|os.O_CREAT|os.O_TRUNC)
+            librepo.download_url(url, fd)
+            os.close(fd)
+            logger.info(_("%s http download is OK."), pkgname)
+        except librepo.LibrepoException as e:
+            logger.error(_("%s."), e.args[1])
+            return
+
+    def ftp_download_file(option, pkgname):
+        from ftplib import FTP
+        ip = srcdir_path.split('/')[0]
+        ftp_path = srcdir_path.replace(ip,'/pub')  + '/' + pkgname
+        file_name = destdir_path + '/' + pkgname
+
+        try:
+            ftp=FTP()
+            ftp.connect(ip) #connect to the ftp server
+            ftp.login('','') #login anonymous
+
+            bufsize = 1024 #set the buf size
+            file_handler = open(file_name,'wb').write #open the local file
+            ftp.retrbinary('RETR ' + ftp_path,file_handler,bufsize) #receive the file from ftp server
+            logger.info(_("%s ftp download is OK."), pkgname)
+            ftp.quit() #quit the ftp server
+        except Exception as e:
             logger.error(_("%s."), e)
             return
 
     def fetch_package(option, type, pkgname):
         if type == 'local':
             copy_package(option, pkgname)
-        elif type == 'remote':
-            download_package(option, pkgname)
+        elif type == 'remote_http':
+            http_download_file(option, pkgname)
+        elif type == 'remote_ftp':
+            ftp_download_file(option, pkgname)
     
     def local_path_check(path):
         if not os.path.exists(path):
@@ -207,7 +219,10 @@ def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
         if not local_path_check(srcdir_path):
             return
     elif srcdir_path.startswith('http://'):  ##remote fetch
-        type = 'remote'
+        type = 'remote_http'
+    elif srcdir_path.startswith('ftp://'):  ##remote fetch
+        type = 'remote_ftp'
+        srcdir_path = dnf.util.strip_prefix(srcdir_path, 'ftp://')
     else:
         logger.error(_("The format of %s_repodir is not right, please check it!\nWe only support file:// and http://"), option)   
         return
