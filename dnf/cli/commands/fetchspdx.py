@@ -81,8 +81,8 @@ class Fetch_spdxCommand(commands.Command):
         elif ypl.installed:
             install_pkgs = ypl.installed
         else:
-            Logger.info(_("Error: No matches found."))
-            Return
+            logger.info(_("Error: No matches found."))
+            return
 
         dnf.cli.utils.fetchSPDXorSRPM('spdx', install_pkgs, srcdir_path, destdir_path)
 
