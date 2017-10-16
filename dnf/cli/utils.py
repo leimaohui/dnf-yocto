@@ -173,6 +173,7 @@ def fetchSPDXorSRPM(option, install_pkgs, srcdir_path, destdir_path):
             logger.info(_("%s http download is OK."), pkgname)
         except librepo.LibrepoException as e:
             logger.error(_("%s."), e.args[1])
+            os.remove(file_name)
             return
 
     def ftp_download_file(option, pkgname):
