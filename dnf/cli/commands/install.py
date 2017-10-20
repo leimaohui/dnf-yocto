@@ -79,7 +79,6 @@ class InstallCommand(commands.Command):
         else:
             self.base.conf.with_spdx = False
 
-        #import pdb;pdb.set_trace()
         if self.opts.with_srpm:
             self.base.conf.with_srpm = True
         else:

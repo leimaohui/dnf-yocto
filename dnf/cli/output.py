@@ -388,11 +388,12 @@ class Output(object):
            column of output.  The columns are the package name, version,
            and repository
         """
+        columns = (-40, -16, -12, -16) # Old default
         if columns is None:
             columns = (-40, -22, -16) # Old default
         na = '%s%s.%s' % (indent, pkg.name, pkg.arch)
-        hi_cols = [highlight, 'normal', 'normal']
-        columns = zip((na, pkg.evr, pkg._from_repo), columns, hi_cols)
+        hi_cols = [highlight, 'normal', 'normal', 'normal']
+        columns = zip((na, pkg.evr, pkg._from_repo, pkg.license), columns, hi_cols)
         print(self.fmtColumns(columns))
 
     def simpleEnvraList(self, pkg, ui_overflow=False,
