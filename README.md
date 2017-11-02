@@ -1,10 +1,10 @@
-#1. Introduction
+# 1. Introduction
 ***
 Dandified Yum (DNF) is the next upcoming major version of [Yum](http://yum.baseurl.org/). It does package management using [RPM](http://rpm.org/), [libsolv](https://github.com/openSUSE/libsolv) and [hawkey](https://github.com/rpm-software-management/hawkey) libraries. For metadata handling and package downloads it utilizes [librepo](https://github.com/tojaj/librepo). To process and effectively handle the comps data it uses [libcomps](https://github.com/midnightercz/libcomps).
 
 Because after yocto2.3, rpm5 and smart are replaced by rpm4 and dnf, so the  package management tool(dnf) in yocto need to be developed, and it is called dnf-yocto.
 
-#2. Overview
+# 2. Overview
 ***
 In order to manage packages in yocto, the following functions need to be developed.
   1. dnf command line functions		
@@ -12,10 +12,10 @@ In order to manage packages in yocto, the following functions need to be develop
 
 The dnf-yocto can be used both in host(a x86 PC with Linux) and target(a arm-soc board) environment.		
 
-#3. Usage of dnf-yocto
+# 3. Usage of dnf-yocto
 ***
-##3.1 In host
-###3.1.1 Prepare the rpm repo
+## 3.1 In host
+### 3.1.1 Prepare the rpm repo
 ```
 $ ls /home/zhengrq/workdir/dnf_test/oe_repo/
 repodata  rpm
@@ -27,14 +27,14 @@ $ ls /home/zhengrq/workdir/dnf_test/oe_repo/
 repodata  rpm  spdx_repo  srpm_repo
 ```
 
-###3.1.2 Install and source toolchain
+### 3.1.2 Install and source toolchain
 ```
 $ sh poky-glibc-x86_64-meta-toolchain-i586-toolchain-2.3.1.sh
 $ . /opt/poky/2.3.1/environment-setup-i586-poky-linux
 ```
 * After this operation, you can use dnf command in your host, but it is just a bare dnf, we need some set up to use it more convenient.
 
-###3.1.3 Initialize the environment
+### 3.1.3 Initialize the environment
 ```
 $ dnf-host init
 The repo directory: (default:/home/zhengrq/workdir/dnf_test/oe_repo).
@@ -63,7 +63,7 @@ y
 SRPM file destination directory: /home/zhengrq/workdir/dnf_test/srpm_download
 ```
 
-###3.1.4 Use dnf-host to do command
+### 3.1.4 Use dnf-host to do command
 * In the new environment, you can use dnf-host instead of bare dnf command.
 ```
 $ dnf-host info bash
@@ -134,7 +134,7 @@ Installed:
 Complete!
 ```
 
-###3.1.5 Use new add command in dnf-yocto
+### 3.1.5 Use new add command in dnf-yocto
 
 (1) Modify the config file of dnf
 ```
@@ -228,8 +228,8 @@ bash-4.3.30.spdx
 
 * fetchsrpm is the same as fetchspdx
 
-##3.2 In target
-###3.2.1 Set up the repodata of yum
+## 3.2 In target
+### 3.2.1 Set up the repodata of yum
 * First you need a http server with yum repo to access
 ```
 [root@localhost target]# cat etc/yum.repos.d/Base.repo
@@ -241,7 +241,7 @@ gpgcheck=0
 ```
 * Here 192.168.65.144 is the ip of http server
 
-###3.2.2 Modify the config file of dnf
+### 3.2.2 Modify the config file of dnf
 * Here is a example, the mean of each key is the say of host
 ```
 [root@localhost target]# cat etc/dnf/dnf.conf
@@ -254,7 +254,7 @@ spdx_download=/home/root/spdx_download
 srpm_repodir=http://192.168.65.144/oe_repo/srpm_repo
 srpm_download=/home/root/srpm_download
 ```
-###3.2.3 Usage of dnf in target
+### 3.2.3 Usage of dnf in target
 The usage of dnf in target is the same of in host, just use dnf instead of dnf-host, for example:
 ```
 dnf-host list/dnf list
@@ -287,7 +287,7 @@ sqlite3-dbg.i586                         3:3.17.0-r0      oe-repo      PD
 tzcode.i586                              2.25-r0          oe-repo      GPLv2 & LGPLv2.1
 ```
 
-#4. Documentation
+# 4. Documentation
 ***
 If you want to know more knowledge about dnf, read the documentation of dnf.
 The DNF package distribution contains man pages, dnf(8) and dnf.conf(8). It is also possible to [read the DNF documentation](http://dnf.readthedocs.org/)online, the page includes API documentation. There's also a [wiki](https://github.com/rpm-software-management/dnf/wiki) meant for contributors to DNF and related projects.
