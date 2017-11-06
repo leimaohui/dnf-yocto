@@ -78,8 +78,8 @@ class Fetch_srpmCommand(commands.Command):
         #check if the pkg can be found
         if ypl.available:
             install_pkgs = ypl.available
-        elif ypl.installed:
-            install_pkgs = ypl.installed
+        if ypl.installed:
+            install_pkgs = install_pkgs + ypl.installed
         else:
             logger.info(_("Error: No matches found."))
             return
