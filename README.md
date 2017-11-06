@@ -145,10 +145,11 @@ spdx_download=/home/zhengrq/workdir/dnf_test/spdx_download
 srpm_repodir=file:///home/zhengrq/workdir/dnf_test/oe_repo/srpm_repo
 srpm_download=/home/zhengrq/workdir/dnf_test/srpm_download
 ```
->①　spdx_repodir/srpm_repodir：the path spdx/srpm repo
-　　　　　　　　　　　local：start with file://
-　　　　　　　　　　　remote：start with http://
-②　spdx_download/srpm_download：download path of spdx/srpm file
+Note:
+>　* spdx_repodir/srpm_repodir：the path of spdx/srpm repo
+　　 If the repo is local, start with file://
+     If the repo is remote, start with http://
+>　* spdx_download/srpm_download：download path of spdx/srpm file
 
 (2) Usage of --with-spdx and --with-srpm
 ```
