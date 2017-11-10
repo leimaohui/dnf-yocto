@@ -18,13 +18,21 @@ The dnf-yocto can be used both in host(a x86 PC with Linux) and target(a arm-soc
 ### 3.1.1 Prepare the rpm repo
 ```
 $ ls /home/zhengrq/workdir/dnf_test/oe_repo/
-repodata  rpm
+rpm
+$ ls /home/zhengrq/workdir/dnf_test/oe_repo/rpm/
+i586  noarch  qemux86
 ```
 
   * If you want to mange spdx or srpm, you should also create spdx or srpm repo.
 ```
 $ ls /home/zhengrq/workdir/dnf_test/oe_repo/
-repodata  rpm  spdx_repo  srpm_repo
+rpm  spdx_repo  srpm_repo
+$ ls /home/zhengrq/workdir/dnf_test/oe_repo/spdx_repo
+bash-4.3.30.spdx
+......
+$ ls /home/zhengrq/workdir/dnf_test/oe_repo/srpm_repo
+bash-4.3.30-r0.src.rpm
+......
 ```
 
 ### 3.1.2 Install and source toolchain
@@ -35,6 +43,7 @@ $ . /opt/poky/2.3.1/environment-setup-i586-poky-linux
 * After this operation, you can use dnf command in your host, but it is just a bare dnf, we need some set up to use it more convenient.
 
 ### 3.1.3 Initialize the environment
+* Note: All the operations after init must be done in the same directory of which you do 'dnf-host init'!
 ```
 $ dnf-host init
 The repo directory: (default:/home/zhengrq/workdir/dnf_test/oe_repo).
