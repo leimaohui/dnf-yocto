@@ -78,7 +78,6 @@ class Fetch_spdxCommand(commands.Command):
         # check if the pkg can be found
         if ypl.available:
             install_pkgs = ypl.available
-        if ypl.installed:
             install_pkgs = install_pkgs + ypl.installed
         else:
             logger.info(_("Error: No matches found."))
