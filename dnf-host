@@ -2,11 +2,11 @@
 
 #DEFAULT_TARGET_ ROOTFS=""
 WORKDIR=`pwd`
-DEFAULT_REPO_DIR=$WORKDIR/oe_repo
+DEFAULT_REPO_DIR=file://$WORKDIR/oe_repo/
 DEFAULT_ROOTFS_DIR=$WORKDIR/rootfs
-DEFAULT_SPDX_REPO_DIR=file://$WORKDIR/oe_repo/spdx_repo
+DEFAULT_SPDX_REPO_DIR=file://$WORKDIR/spdx_repo
 DEFAULT_SPDX_DESTINATION_DIR=$WORKDIR/spdx_download
-DEFAULT_SRPM_REPO_DIR=file://$WORKDIR/oe_repo/srpm_repo
+DEFAULT_SRPM_REPO_DIR=file://$WORKDIR/srpm_repo
 DEFAULT_SRPM_DESTINATION_DIR=$WORKDIR/srpm_download
 
 if [ $1 = "init" -a $# = 1 ]; then
@@ -90,6 +90,11 @@ if [ $1 = "init" -a $# = 1 ]; then
         echo "Create the SRPM file destination directory automatically"
         mkdir -p $DEFINE_SRPM_DESTINATION_DIR
     fi
+
+if [ ${DEFINE_REPO_DIR:0:4} = "file" ];then
+    DEFINE_REPO_DIR=${DEFINE_REPO_DIR#*//}
+fi
+
 
     environment-dnf.sh $DEFINE_ROOTFS_DIR $DEFINE_REPO_DIR $DEFINE_SPDX_REPO_DIR $DEFINE_SPDX_DESTINATION_DIR $DEFINE_SRPM_REPO_DIR $DEFINE_SRPM_DESTINATION_DIR
      

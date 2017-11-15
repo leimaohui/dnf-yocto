@@ -57,13 +57,16 @@ if [ ! -d $TARGET_ROOTFS ]; then
     mkdir -p $TARGET_ROOTFS
 fi
 
-if [ ! -d $REPO_DIR/rpm ]; then
-    echo "Error! $REPO_DIR/rpm is not exist. "
-    exit 0
-fi
-
 #create repodata for rpm packages.
-createrepo_c.real --update -q $REPO_DIR
+if [ ${REPODIR:0:4} = "http" ];then
+    echo "This is a remote repo!"
+else
+    if [ ! -d $REPO_DIR/rpm ]; then
+        echo "Error! $REPO_DIR/rpm is not exist. "
+        exit 0
+    fi
+    createrepo_c.real --update -q $REPO_DIR
+fi
 
 # Pseudo Environment
 #export LD_LIBRARY_PATH=$OECORE_NATIVE_SYSROOT/usr/bin/../lib/pseudo/lib:$OECORE_NATIVE_SYSROOT/usr/bin/../lib/pseudo/lib64
