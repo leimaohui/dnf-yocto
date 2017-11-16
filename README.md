@@ -25,12 +25,12 @@ i586  noarch  qemux86
 
   * If you want to mange spdx or srpm, you should also create spdx or srpm repo.
 ```
-$ ls /home/zhengrq/workdir/dnf_test/oe_repo/
-rpm  spdx_repo  srpm_repo
-$ ls /home/zhengrq/workdir/dnf_test/oe_repo/spdx_repo
+$ ls /home/zhengrq/workdir/dnf_test
+spdx_repo  srpm_repo
+$ ls /home/zhengrq/workdir/dnf_test/spdx_repo
 bash-4.3.30.spdx
 ......
-$ ls /home/zhengrq/workdir/dnf_test/oe_repo/srpm_repo
+$ ls /home/zhengrq/workdir/dnf_test/srpm_repo
 bash-4.3.30-r0.src.rpm
 ......
 ```
@@ -54,18 +54,18 @@ The rootfs destination directory: (default: /home/zhengrq/workdir/dnf_test/rootf
 Is this ok?[y/N]:
 y
 rootfs destination directory: /home/zhengrq/workdir/dnf_test/rootfs
-The SPDX repo directory: (default: file:///home/zhengrq/workdir/dnf_test/oe_repo/spdx_repo).
+The SPDX repo directory: (default: file:///home/zhengrq/workdir/dnf_test/spdx_repo).
 Is this ok?[y/N]:
 y
-SPDX repo directory: file:///home/zhengrq/workdir/dnf_test/oe_repo/spdx_repo
+SPDX repo directory: file:///home/zhengrq/workdir/dnf_test/spdx_repo
 The SPDX file destination directory: (default: /home/zhengrq/workdir/dnf_test/spdx_download).
 Is this ok?[y/N]:
 y
 SPDX file destination directory: /home/zhengrq/workdir/dnf_test/spdx_download
-The SRPM repo directory: (default: file:///home/zhengrq/workdir/dnf_test/oe_repo/srpm_repo).
+The SRPM repo directory: (default: file:///home/zhengrq/workdir/dnf_test/srpm_repo).
 Is this ok?[y/N]:
 y
-SRPM repo directory: file:///home/zhengrq/workdir/dnf_test/oe_repo/srpm_repo
+SRPM repo directory: file:///home/zhengrq/workdir/dnf_test/srpm_repo
 The SRPM file destination directory: (default: /home/zhengrq/workdir/dnf_test/srpm_download).
 Is this ok?[y/N]:
 y
